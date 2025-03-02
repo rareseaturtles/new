@@ -3,22 +3,549 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wallet Ranker</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>Litter Leaks</title>
+  <style>
+    /* Your existing styles remain unchanged */
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #e0f7fa, #80deea);
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    h1 {
+      font-size: 48px;
+      color: #006064;
+      margin: 20px 0;
+      font-family: 'Trebuchet MS', sans-serif;
+      text-shadow: 2px 2px 4px rgba(0, 96, 100, 0.3);
+    }
+    .logo {
+      width: 120px;
+      height: auto;
+      border-radius: 50%;
+      border: 4px solid #006064;
+      margin: 20px auto;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s;
+    }
+    .logo:hover {
+      transform: scale(1.05);
+    }
+    .content {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      margin: 20px;
+      border-radius: 15px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+      max-width: 700px;
+      border: 3px solid #4dd0e1;
+      text-align: center;
+    }
+    .camera-container {
+      margin: 20px 0;
+      position: relative;
+      display: inline-block;
+    }
+    #video {
+      display: none;
+      width: 480px;
+      height: 360px;
+      border-radius: 12px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      object-fit: cover;
+      background: #000; /* Black background while loading */
+    }
+    #camera-btn {
+      padding: 12px 25px;
+      font-size: 16px;
+      color: #fff;
+      background: linear-gradient(135deg, #006064, #003d40);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+    }
+    #camera-btn.active {
+      position: absolute;
+      bottom: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 70px;
+      height: 70px;
+      background: rgba(255, 0, 0, 0.7);
+      border: 3px solid #fff;
+      border-radius: 50%;
+      font-size: 0;
+      padding: 0;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+    #camera-btn:disabled {
+      background: #b0bec5;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    #camera-btn:hover:not(:disabled):not(.active) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+      background: linear-gradient(135deg, #003d40, #001e20);
+    }
+    #camera-btn.active:hover:not(:disabled) {
+      transform: translateX(-50%) scale(1.1);
+      background: rgba(255, 0, 0, 0.9);
+    }
+    #connect-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 8px 15px;
+      background: linear-gradient(135deg, #006064, #003d40);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+    }
+    #connect-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+      background: linear-gradient(135deg, #003d40, #001e20);
+    }
+    #gallery {
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      width: 100%;
+      max-width: 1200px;
+    }
+    .post {
+      background: #fff;
+      border: 2px solid #80deea;
+      padding: 20px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+      box-sizing: border-box;
+      transition: transform 0.3s ease;
+    }
+    .post:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+    .post img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .post p {
+      margin: 12px 0;
+      font-size: 16px;
+      color: #006064;
+      line-height: 1.4;
+    }
+    .rating-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+    }
+    .rating-btn {
+      padding: 6px 12px;
+      font-size: 20px;
+      background: #e0f7fa;
+      color: #006064;
+      border: 1px solid #006064;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .rating-btn:hover {
+      background: #b2ebf2;
+    }
+    .rating-btn:disabled {
+      background: #b0bec5;
+      cursor: not-allowed;
+    }
+    #status {
+      margin-top: 10px;
+      font-size: 16px;
+      color: #006064;
+      font-weight: bold;
+    }
+    .form-group {
+      margin: 15px 0;
+    }
+    select, input[type="text"] {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #006064;
+      width: 100%;
+      max-width: 240px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .rewards-text {
+      font-size: 14px;
+      color: #003d40;
+      margin: 15px 0;
+      background: rgba(224, 247, 250, 0.8);
+      padding: 12px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    @media (max-width: 600px) {
+      h1 { font-size: 32px; }
+      button { padding: 10px 20px; font-size: 14px; min-width: 100px; }
+      .post { max-width: 100%; padding: 15px; }
+      #video { width: 100%; height: auto; max-width: 480px; max-height: 360px; }
+      #status { font-size: 14px; }
+      #connect-btn { font-size: 12px; padding: 6px 12px; }
+      select, input[type="text"] { font-size: 14px; max-width: 200px; }
+      .content { padding: 15px; margin: 15px; }
+      #gallery { gap: 15px; }
+    }
+  </style>
 </head>
 <body>
-  <div class="wallet-container">
-    <h1>Connect Your Wallet</h1>
-    <button id="connect-wallet-btn" onclick="connectWallet()">Connect Wallet</button>
-    <div id="wallet-info" class="hidden">
-      <p><strong>Wallet Address:</strong> <span id="wallet-address"></span></p>
-      <p><strong>DIRA Balance:</strong> <span id="dira-balance">Loading...</span></p>
-      <p id="eligibility-message"></p>
-      <button id="claim-btn" class="hidden" onclick="claimAirdrop()">Claim Airdrop (1,000 DIRA)</button>
+  <button id="connect-btn" onclick="connectWallet()">Connect Wallet</button>
+  <img class="logo" src="https://www.arweave.net/0UBZmi9VNO_QN7lem_KJ_grHzSIMyWgHjYdK2oUds6k?ext=jpg" alt="Litter Leaks Logo">
+  <h1>Litter Leaks</h1>
+  <div class="content">
+    <div class="form-group">
+      <select id="image-type">
+        <option value="before">Before Cleanup</option>
+        <option value="after">After Cleanup</option>
+      </select>
     </div>
+    <div class="form-group">
+      <input type="text" id="location" placeholder="Add location (optional)">
+    </div>
+    <div class="camera-container">
+      <video id="video" autoplay playsinline muted></video>
+      <button id="camera-btn" onclick="handleCamera()" disabled>Start Camera</button>
+    </div>
+    <div id="status"></div>
+    <div class="rewards-text">Rewards available for popular cleanups – the more upvotes, the better your chances!</div>
   </div>
+  <div id="gallery"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.46.1/lib/index.iife.js"></script>
-  <script src="script.js"></script>
+  <!-- Firebase SDK Compat Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <!-- Solana Web3.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.91.1/lib/index.iife.min.js"></script>
+
+  <script>
+    // DOM elements
+    const video = document.getElementById("video");
+    const statusEl = document.getElementById("status");
+    const galleryEl = document.getElementById("gallery");
+    const cameraBtn = document.getElementById("camera-btn");
+    const imageType = document.getElementById("image-type");
+    const locationInput = document.getElementById("location");
+
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyABc3oR2hxlm_DTE9vsEHufk7BZ6TqeKP0",
+      authDomain: "voting-f332e.firebaseapp.com",
+      projectId: "voting-f332e",
+      storageBucket: "voting-f332e.firebasestorage.app",
+      messagingSenderId: "551078651014",
+      appId: "1:551078651014:web:86646146a581b8dc3edd07",
+      measurementId: "G-WYLGQ9B7KC"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Solana config
+    const TOKEN_MINT_ADDRESS = new solanaWeb3.PublicKey("53hZ5wdfphd8wUoh6rqrv5STvB58yBRaXuZFAWwitKm8");
+    const RPC_ENDPOINT = "https://solana-mainnet.g.alchemy.com/v2/FhRe8GPzziOkp5qiOF5OO4erPzDYvoF_";
+    const TOKEN_PROGRAM_ID = new solanaWeb3.PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
+    let publicKey = null;
+    let isTokenHolder = false;
+    let isCameraActive = false;
+    let walletProvider = null;
+    let walletName = "Unknown";
+
+    // Custom wallet connection handler
+    async function connectWallet() {
+      console.log("connectWallet called");
+      walletProvider = null;
+      publicKey = null;
+      walletName = "Unknown";
+
+      // Detect Phantom
+      if (window.solana && window.solana.isPhantom) {
+        walletProvider = window.solana;
+        walletName = "Phantom";
+        console.log("Phantom detected");
+      }
+      // Detect Backpack
+      else if (window.backpack && window.backpack.isBackpack) {
+        walletProvider = window.backpack;
+        walletName = "Backpack";
+        console.log("Backpack detected");
+      }
+      // Detect Solflare (Jupiter Mobile compatibility)
+      else if (window.solflare && window.solflare.isSolflare) {
+        walletProvider = window.solflare;
+        walletName = "Solflare/Jupiter";
+        console.log("Solflare detected (possible Jupiter Mobile)");
+      }
+      // Fallback for undetected wallets (e.g., Jupiter Mobile on mobile)
+      else {
+        statusEl.innerHTML = 'No supported wallet detected. Install <a href="https://phantom.app/" target="_blank" style="color: #006064; text-decoration: underline;">Phantom</a>, <a href="https://backpack.app/" target="_blank" style="color: #006064; text-decoration: underline;">Backpack</a>, or open this page in the Jupiter Mobile app browser.';
+        console.error("No supported wallet detected");
+        return;
+      }
+
+      try {
+        // Normalize wallet provider interface
+        if (!walletProvider.connect) {
+          throw new Error("Wallet provider does not support connect method");
+        }
+
+        // Connect to the wallet
+        const response = await walletProvider.connect();
+        if (!walletProvider.publicKey && !response.publicKey) {
+          throw new Error("No public key returned from wallet");
+        }
+
+        // Handle different response formats
+        publicKey = walletProvider.publicKey
+          ? walletProvider.publicKey.toString()
+          : response.publicKey.toString();
+
+        statusEl.textContent = `Connected: ${publicKey.slice(0, 6)}...${publicKey.slice(-4)} with ${walletName}`;
+        console.log("Wallet connected:", publicKey, "via", walletName);
+
+        // Add disconnect listener
+        walletProvider.on("disconnect", () => {
+          publicKey = null;
+          walletProvider = null;
+          statusEl.textContent = "Wallet disconnected";
+          cameraBtn.disabled = true;
+          console.log("Wallet disconnected");
+        });
+
+        await checkTokenOwnership();
+        displayPosts();
+      } catch (error) {
+        statusEl.textContent = `Wallet connection failed: ${error.message}`;
+        console.error("Connection error:", error);
+      }
+    }
+
+    async function checkTokenOwnership() {
+      if (!publicKey) {
+        statusEl.textContent = "No wallet connected.";
+        return;
+      }
+      console.log("Checking token ownership for:", publicKey);
+      try {
+        const connection = new solanaWeb3.Connection(RPC_ENDPOINT, "confirmed");
+        const tokenAccounts = await connection.getTokenAccountsByOwner(
+          new solanaWeb3.PublicKey(publicKey),
+          { mint: TOKEN_MINT_ADDRESS }
+        );
+        console.log("Token accounts found:", tokenAccounts.value.length);
+
+        let totalBalance = 0;
+        for (const account of tokenAccounts.value) {
+          const balance = account.account.data.readBigUInt64LE(64);
+          totalBalance += Number(balance);
+          console.log("Account:", account.pubkey.toString(), "Balance (raw):", balance);
+        }
+
+        console.log("Total balance (raw):", totalBalance);
+        isTokenHolder = totalBalance > 0;
+        if (isTokenHolder) {
+          statusEl.textContent = "Token holder verified! Start the camera.";
+          cameraBtn.disabled = false;
+        } else {
+          statusEl.textContent = "Connected, but only token (53hZ5w...) holders can post photos.";
+          cameraBtn.disabled = true;
+        }
+      } catch (error) {
+        statusEl.textContent = "Error checking token: " + error.message;
+        console.error("Token check error:", error);
+        cameraBtn.disabled = true;
+      }
+    }
+
+    async function handleCamera() {
+      console.log("handleCamera called, isCameraActive:", isCameraActive);
+      if (!isTokenHolder) {
+        statusEl.textContent = "Only token (53hZ5w...) holders can use the camera.";
+        return;
+      }
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        statusEl.innerHTML = "Camera not supported. <a href='https://testedturtle.netlify.app' target='_blank'>Open in Chrome/Safari</a>.";
+        console.error("navigator.mediaDevices or getUserMedia not available");
+        return;
+      }
+
+      // Create canvas dynamically
+      let canvas = document.createElement("canvas");
+      canvas.style.display = "none";
+      document.body.appendChild(canvas);
+
+      if (!isCameraActive) {
+        // First tap: Start camera
+        try {
+          console.log("Requesting camera access...");
+          const stream = await navigator.mediaDevices.getUserMedia({ 
+            video: { 
+              facingMode: "environment",
+              width: { ideal: 480, max: 480 },
+              height: { ideal: 360, max: 360 }
+            }
+          });
+          video.srcObject = stream;
+          video.style.display = "block";
+          console.log("Stream tracks:", stream.getVideoTracks());
+          video.onloadedmetadata = () => {
+            console.log("Video metadata loaded: width=", video.videoWidth, "height=", video.videoHeight);
+            if (video.videoWidth === 0 || video.videoHeight === 0) {
+              statusEl.textContent = "Camera started but no preview. Check permissions.";
+            } else {
+              statusEl.textContent = "Tap to take photo!";
+              isCameraActive = true;
+              cameraBtn.classList.add("active");
+            }
+          };
+        } catch (error) {
+          statusEl.textContent = "Cannot access camera: " + error.message;
+          console.error("Camera error:", error.name, error.message);
+        }
+      } else {
+        // Second tap: Take photo
+        if (video.videoWidth === 0 || video.videoHeight === 0) {
+          statusEl.textContent = "No camera preview available.";
+          console.error("Video dimensions invalid:", video.videoWidth, video.videoHeight);
+          return;
+        }
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext("2d").drawImage(video, 0, 0);
+        const imageData = canvas.toDataURL("image/jpeg");
+        if (imageData.length < 100) {
+          statusEl.textContent = "Captured image is blank.";
+          console.error("Image data too small:", imageData);
+          return;
+        }
+        video.style.display = "none";
+        video.srcObject.getTracks().forEach(track => track.stop());
+        statusEl.textContent = "Posting photo...";
+        cameraBtn.classList.remove("active");
+        isCameraActive = false;
+
+        const imageTypeValue = imageType.value;
+        const locationValue = locationInput.value.trim() || "No location provided";
+        await postPhoto(imageData, imageTypeValue, locationValue);
+      }
+    }
+
+    async function postPhoto(imageData, imageType, location) {
+      try {
+        const docRef = await db.collection("LitterSnaps").add({
+          image: imageData,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+          upvotes: 0,
+          downvotes: 0,
+          voters: [],
+          postedBy: publicKey,
+          type: imageType,
+          location: location
+        });
+        console.log("Photo posted with ID:", docRef.id);
+        statusEl.textContent = "Photo posted successfully!";
+        locationInput.value = "";
+        displayPosts();
+      } catch (error) {
+        statusEl.textContent = "Error posting photo: " + error.message;
+        console.error("Post error:", error);
+      }
+    }
+
+    async function displayPosts() {
+      try {
+        const snapshot = await db.collection("LitterSnaps").orderBy("timestamp", "desc").get();
+        galleryEl.innerHTML = "";
+        snapshot.forEach((doc) => {
+          const post = doc.data();
+          console.log("Post data:", post);
+          const hasVoted = publicKey && post.voters && post.voters.includes(publicKey);
+          const div = document.createElement("div");
+          div.className = "post";
+          div.innerHTML = `
+            <img src="${post.image}">
+            <p>Type: ${post.type.charAt(0).toUpperCase() + post.type.slice(1)}</p>
+            <p>Location: ${post.location}</p>
+            <p>Posted by: ${post.postedBy.slice(0, 6)}...${post.postedBy.slice(-4)}</p>
+            <p>👍 ${post.upvotes || 0} | 👎 ${post.downvotes || 0}</p>
+            <div class="rating-buttons">
+              <button class="rating-btn" onclick="ratePhoto('${doc.id}', 'up')" ${hasVoted || !publicKey ? "disabled" : ""}>👍</button>
+              <button class="rating-btn" onclick="ratePhoto('${doc.id}', 'down')" ${hasVoted || !publicKey ? "disabled" : ""}>👎</button>
+            </div>
+          `;
+          galleryEl.appendChild(div);
+        });
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+      }
+    }
+
+    async function ratePhoto(docId, voteType) {
+      if (!publicKey) {
+        statusEl.textContent = "Connect your wallet to vote!";
+        return;
+      }
+
+      try {
+        const docRef = db.collection("LitterSnaps").doc(docId);
+        const doc = await docRef.get();
+        const post = doc.data();
+
+        if (post.voters && post.voters.includes(publicKey)) {
+          statusEl.textContent = "You’ve already voted on this photo!";
+          return;
+        }
+
+        if (voteType === "up") {
+          await docRef.update({
+            upvotes: firebase.firestore.FieldValue.increment(1),
+            voters: firebase.firestore.FieldValue.arrayUnion(publicKey)
+          });
+        } else if (voteType === "down") {
+          await docRef.update({
+            downvotes: firebase.firestore.FieldValue.increment(1),
+            voters: firebase.firestore.FieldValue.arrayUnion(publicKey)
+          });
+        }
+        console.log(`Voted ${voteType} on ${docId} by ${publicKey}`);
+        displayPosts();
+      } catch (error) {
+        statusEl.textContent = "Error voting: " + error.message;
+        console.error("Vote error:", error);
+      }
+    }
+
+    // Load posts on page load
+    displayPosts();
+  </script>
 </body>
 </html>
