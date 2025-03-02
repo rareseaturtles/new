@@ -279,71 +279,72 @@
     let walletName = "Unknown";
 
     // Updated connectWallet function with Jupiter Mobile support
-    async function connectWallet() {
-      console.log("connectWallet called");
-      walletProvider = null;
-      publicKey = null;
-      walletName = "Unknown";
+   async function connectWallet() {
+  console.log("connectWallet called");
+  walletProvider = null;
+  publicKey = null;
+  walletName = "Unknown";
 
-      // Detect Phantom
-      if (window.solana && window.solana.isPhantom) {
-        walletProvider = window.solana;
-        walletName = "Phantom";
-        console.log("Phantom detected");
-      }
-      // Detect Backpack
-      else if (window.backpack && window.backpack.isBackpack) {
-        walletProvider = window.backpack;
-        walletName = "Backpack";
-        console.log("Backpack detected");
-      }
-      // Detect Jupiter Mobile
-      else if (window.jup) {
-        walletProvider = window.jup;
-        walletName = "Jupiter Mobile";
-        console.log("Jupiter Mobile detected");
-      }
-      // Detect Solflare
-      else if (window.solflare && window.solflare.isSolflare) {
-        walletProvider = window.solflare;
-        walletName = "Solflare";
-        console.log("Solflare detected");
-      }
-      // Fallback with updated download links
-      else {
-        statusEl.innerHTML = 'No supported wallet detected. Install <a href="https://phantom.app/" target="_blank" style="color: #006064; text-decoration: underline;">Phantom</a>, <a href="https://backpack.app/" target="_blank" style="color: #006064; text-decoration: underline;">Backpack</a>, or download <a href="https://apps.apple.com/app/jupiter/id1634567890" target="_blank" style="color: #006064; text-decoration: underline;">Jupiter Mobile (iOS)</a> / <a href="https://play.google.com/store/apps/details?id=com.jupiter.mobile" target="_blank" style="color: #006064; text-decoration: underline;">(Android)</a>.';
-        console.error("No supported wallet detected");
-        return;
-      }
+  // Detect Phantom
+  if (window.solana && window.solana.isPhantom) {
+    walletProvider = window.solana;
+    walletName = "Phantom";
+    console.log("Phantom detected");
+  }
+  // Detect Backpack
+  else if (window.backpack && window.backpack.isBackpack) {
+    walletProvider = window.backpack;
+    walletName = "Backpack";
+    console.log("Backpack detected");
+  }
+  // Detect Jupiter Mobile (works on both iOS and Android)
+  else if (window.jup) {
+    walletProvider = window.jup;
+    walletName = "Jupiter Mobile";
+    console.log("Jupiter Mobile detected");
+  }
+  // Detect Solflare
+  else if (window.solflare && window.solflare.isSolflare) {
+    walletProvider = window.solflare;
+    walletName = "Solflare";
+    console.log("Solflare detected");
+  }
+  // Fallback with links for both iOS and Android
+  else {
+    statusEl.innerHTML = 'No supported wallet detected. Install <a href="https://phantom.app/" target="_blank" style="color: #006064; text-decoration: underline;">Phantom</a>, <a href="https://backpack.app/" target="_blank" style="color: #006064; text-decoration: underline;">Backpack</a>, or download <a href="https://apps.apple.com/app/jupiter/id1634567890" target="_blank" style="color: #006064; text-decoration: underline;">Jupiter Mobile (iOS)</a> / <a href="https://play.google.com/store/apps/details?id=com.jupiter.mobile" target="_blank" style="color: #006064; text-decoration: underline;">(Android)</a>.';
+    console.error("No supported wallet detected");
+    return;
+  }
 
-      try {
-        if (!walletProvider.connect) {
-          throw new Error("Wallet provider does not support connect method");
-        }
-
-        const response = await walletProvider.connect();
-        publicKey = walletProvider.publicKey
-          ? walletProvider.publicKey.toString()
-          : response.publicKey.toString();
-
-        statusEl.textContent = `Connected: ${publicKey.slice(0, 6)}...${publicKey.slice(-4)} with ${walletName}`;
-        console.log("Wallet connected:", publicKey, "via", walletName);
-
-        walletProvider.on("disconnect", () => {
-          publicKey = null;
-          walletProvider = null;
-          statusEl.textContent = "Wallet disconnected";
-          cameraBtn.disabled = true;
-          console.log("Wallet disconnected");
-        });
-
-        await checkTokenOwnership();
-        displayPosts();
-      } catch (error) {
-        statusEl.textContent = `Wallet connection failed: ${error.message}`;
-        console.error("Connection error:", error);
-      }
+  // Rest of the connection logic remains the same
+  try {
+    if (!walletProvider.connect) {
+      throw new Error("Wallet provider does not support connect method");
     }
+
+    const response = await walletProvider.connect();
+    publicKey = walletProvider.publicKey
+      ? walletProvider.publicKey.toString()
+      : response.publicKey.toString();
+
+    statusEl.textContent = `Connected: ${publicKey.slice(0, 6)}...${publicKey.slice(-4)} with ${walletName}`;
+    console.log("Wallet connected:", publicKey, "via", walletName);
+
+    walletProvider.on("disconnect", () => {
+      publicKey = null;
+      walletProvider = null;
+      statusEl.textContent = "Wallet disconnected";
+      cameraBtn.disabled = true;
+      console.log("Wallet disconnected");
+    });
+
+    await checkTokenOwnership();
+    displayPosts();
+  } catch (error) {
+    statusEl.textContent = `Wallet connection failed: ${error.message}`;
+    console.error("Connection error:", error);
+  }
+}
 
     async function checkTokenOwnership() {
       if (!publicKey) {
