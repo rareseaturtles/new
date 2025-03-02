@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Litter Leaks</title>
   <style>
-    /* Your existing styles remain unchanged */
     body {
       font-family: 'Arial', sans-serif;
       margin: 0;
@@ -59,7 +58,7 @@
       border-radius: 12px;
       box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
       object-fit: cover;
-      background: #000; /* Black background while loading */
+      background: #000;
     }
     #camera-btn {
       padding: 12px 25px;
@@ -279,7 +278,7 @@
     let walletProvider = null;
     let walletName = "Unknown";
 
-    // Custom wallet connection handler
+    // Updated connectWallet function with Jupiter Mobile support
     async function connectWallet() {
       console.log("connectWallet called");
       walletProvider = null;
@@ -298,32 +297,31 @@
         walletName = "Backpack";
         console.log("Backpack detected");
       }
-      // Detect Solflare (Jupiter Mobile compatibility)
+      // Detect Jupiter Mobile
+      else if (window.jup) {
+        walletProvider = window.jup;
+        walletName = "Jupiter Mobile";
+        console.log("Jupiter Mobile detected");
+      }
+      // Detect Solflare
       else if (window.solflare && window.solflare.isSolflare) {
         walletProvider = window.solflare;
-        walletName = "Solflare/Jupiter";
-        console.log("Solflare detected (possible Jupiter Mobile)");
+        walletName = "Solflare";
+        console.log("Solflare detected");
       }
-      // Fallback for undetected wallets (e.g., Jupiter Mobile on mobile)
+      // Fallback with updated download links
       else {
-        statusEl.innerHTML = 'No supported wallet detected. Install <a href="https://phantom.app/" target="_blank" style="color: #006064; text-decoration: underline;">Phantom</a>, <a href="https://backpack.app/" target="_blank" style="color: #006064; text-decoration: underline;">Backpack</a>, or open this page in the Jupiter Mobile app browser.';
+        statusEl.innerHTML = 'No supported wallet detected. Install <a href="https://phantom.app/" target="_blank" style="color: #006064; text-decoration: underline;">Phantom</a>, <a href="https://backpack.app/" target="_blank" style="color: #006064; text-decoration: underline;">Backpack</a>, or download <a href="https://apps.apple.com/app/jupiter/id1634567890" target="_blank" style="color: #006064; text-decoration: underline;">Jupiter Mobile (iOS)</a> / <a href="https://play.google.com/store/apps/details?id=com.jupiter.mobile" target="_blank" style="color: #006064; text-decoration: underline;">(Android)</a>.';
         console.error("No supported wallet detected");
         return;
       }
 
       try {
-        // Normalize wallet provider interface
         if (!walletProvider.connect) {
           throw new Error("Wallet provider does not support connect method");
         }
 
-        // Connect to the wallet
         const response = await walletProvider.connect();
-        if (!walletProvider.publicKey && !response.publicKey) {
-          throw new Error("No public key returned from wallet");
-        }
-
-        // Handle different response formats
         publicKey = walletProvider.publicKey
           ? walletProvider.publicKey.toString()
           : response.publicKey.toString();
@@ -331,7 +329,6 @@
         statusEl.textContent = `Connected: ${publicKey.slice(0, 6)}...${publicKey.slice(-4)} with ${walletName}`;
         console.log("Wallet connected:", publicKey, "via", walletName);
 
-        // Add disconnect listener
         walletProvider.on("disconnect", () => {
           publicKey = null;
           walletProvider = null;
@@ -398,13 +395,11 @@
         return;
       }
 
-      // Create canvas dynamically
       let canvas = document.createElement("canvas");
       canvas.style.display = "none";
       document.body.appendChild(canvas);
 
       if (!isCameraActive) {
-        // First tap: Start camera
         try {
           console.log("Requesting camera access...");
           const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -432,7 +427,6 @@
           console.error("Camera error:", error.name, error.message);
         }
       } else {
-        // Second tap: Take photo
         if (video.videoWidth === 0 || video.videoHeight === 0) {
           statusEl.textContent = "No camera preview available.";
           console.error("Video dimensions invalid:", video.videoWidth, video.videoHeight);
