@@ -241,6 +241,7 @@
   <!-- Firebase SDK Compat Scripts -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script> <!-- Added Firebase Storage -->
   <!-- Solana Web3.js -->
   <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.91.1/lib/index.iife.min.js"></script>
 
@@ -267,6 +268,7 @@
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+    const storage = firebase.storage(); // Initialize Firebase Storage
 
     // Solana config
     const TOKEN_MINT_ADDRESS = new solanaWeb3.PublicKey("53hZ5wdfphd8wUoh6rqrv5STvB58yBRaXuZFAWwitKm8");
@@ -278,74 +280,75 @@
     let walletProvider = null;
     let walletName = "Unknown";
 
-    // Updated connectWallet function with Jupiter Mobile support
-   async function connectWallet() {
-  console.log("connectWallet called");
-  walletProvider = null;
-  publicKey = null;
-  walletName = "Unknown";
+    // Connect wallet function (unchanged)
+    async function connectWallet() {
+      console.log("connectWallet called");
+      walletProvider = null;
+      publicKey = null;
+      walletName = "Unknown";
 
-  // Detect Phantom
-  if (window.solana && window.solana.isPhantom) {
-    walletProvider = window.solana;
-    walletName = "Phantom";
-    console.log("Phantom detected");
-  }
-  // Detect Backpack
-  else if (window.backpack && window.backpack.isBackpack) {
-    walletProvider = window.backpack;
-    walletName = "Backpack";
-    console.log("Backpack detected");
-  }
-  // Detect Jupiter Mobile (works on both iOS and Android)
-  else if (window.jup) {
-    walletProvider = window.jup;
-    walletName = "Jupiter Mobile";
-    console.log("Jupiter Mobile detected");
-  }
-  // Detect Solflare
-  else if (window.solflare && window.solflare.isSolflare) {
-    walletProvider = window.solflare;
-    walletName = "Solflare";
-    console.log("Solflare detected");
-  }
-  // Fallback with links for both iOS and Android
-  else {
-    statusEl.innerHTML = 'No supported wallet detected. Install <a href="https://phantom.app/" target="_blank" style="color: #006064; text-decoration: underline;">Phantom</a>, <a href="https://backpack.app/" target="_blank" style="color: #006064; text-decoration: underline;">Backpack</a>, or download <a href="https://apps.apple.com/app/jupiter/id1634567890" target="_blank" style="color: #006064; text-decoration: underline;">Jupiter Mobile (iOS)</a> / <a href="https://play.google.com/store/apps/details?id=com.jupiter.mobile" target="_blank" style="color: #006064; text-decoration: underline;">(Android)</a>.';
-    console.error("No supported wallet detected");
-    return;
-  }
+      // Detect Phantom
+      if (window.solana && window.solana.isPhantom) {
+        walletProvider = window.solana;
+        walletName = "Phantom";
+        console.log("Phantom detected");
+      }
+      // Detect Backpack
+      else if (window.backpack && window.backpack.isBackpack) {
+        walletProvider = window.backpack;
+        walletName = "Backpack";
+        console.log("Backpack detected");
+      }
+      // Detect Jupiter Mobile (works on both iOS and Android)
+      else if (window.jup) {
+        walletProvider = window.jup;
+        walletName = "Jupiter Mobile";
+        console.log("Jupiter Mobile detected");
+      }
+      // Detect Solflare
+      else if (window.solflare && window.solflare.isSolflare) {
+        walletProvider = window.solflare;
+        walletName = "Solflare";
+        console.log("Solflare detected");
+      }
+      // Fallback with links for both iOS and Android
+      else {
+        statusEl.innerHTML = 'No supported wallet detected. Install <a href="https://phantom.app/" target="_blank" style="color: #006064; text-decoration: underline;">Phantom</a>, <a href="https://backpack.app/" target="_blank" style="color: #006064; text-decoration: underline;">Backpack</a>, or download <a href="https://apps.apple.com/app/jupiter/id1634567890" target="_blank" style="color: #006064; text-decoration: underline;">Jupiter Mobile (iOS)</a> / <a href="https://play.google.com/store/apps/details?id=com.jupiter.mobile" target="_blank" style="color: #006064; text-decoration: underline;">(Android)</a>.';
+        console.error("No supported wallet detected");
+        return;
+      }
 
-  // Rest of the connection logic remains the same
-  try {
-    if (!walletProvider.connect) {
-      throw new Error("Wallet provider does not support connect method");
+      // Rest of the connection logic remains the same
+      try {
+        if (!walletProvider.connect) {
+          throw new Error("Wallet provider does not support connect method");
+        }
+
+        const response = await walletProvider.connect();
+        publicKey = walletProvider.publicKey
+          ? walletProvider.publicKey.toString()
+          : response.publicKey.toString();
+
+        statusEl.textContent = `Connected: ${publicKey.slice(0, 6)}...${publicKey.slice(-4)} with ${walletName}`;
+        console.log("Wallet connected:", publicKey, "via", walletName);
+
+        walletProvider.on("disconnect", () => {
+          publicKey = null;
+          walletProvider = null;
+          statusEl.textContent = "Wallet disconnected";
+          cameraBtn.disabled = true;
+          console.log("Wallet disconnected");
+        });
+
+        await checkTokenOwnership();
+        displayPosts();
+      } catch (error) {
+        statusEl.textContent = `Wallet connection failed: ${error.message}`;
+        console.error("Connection error:", error);
+      }
     }
 
-    const response = await walletProvider.connect();
-    publicKey = walletProvider.publicKey
-      ? walletProvider.publicKey.toString()
-      : response.publicKey.toString();
-
-    statusEl.textContent = `Connected: ${publicKey.slice(0, 6)}...${publicKey.slice(-4)} with ${walletName}`;
-    console.log("Wallet connected:", publicKey, "via", walletName);
-
-    walletProvider.on("disconnect", () => {
-      publicKey = null;
-      walletProvider = null;
-      statusEl.textContent = "Wallet disconnected";
-      cameraBtn.disabled = true;
-      console.log("Wallet disconnected");
-    });
-
-    await checkTokenOwnership();
-    displayPosts();
-  } catch (error) {
-    statusEl.textContent = `Wallet connection failed: ${error.message}`;
-    console.error("Connection error:", error);
-  }
-}
-
+    // Check token ownership function (unchanged)
     async function checkTokenOwnership() {
       if (!publicKey) {
         statusEl.textContent = "No wallet connected.";
@@ -383,38 +386,51 @@
       }
     }
 
+    // Handle camera function (unchanged)
     async function handleCamera() {
       console.log("handleCamera called, isCameraActive:", isCameraActive);
+      
+      // Check if user is a token holder
       if (!isTokenHolder) {
         statusEl.textContent = "Only token (53hZ5w...) holders can use the camera.";
         return;
       }
 
+      // Verify camera API support
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        statusEl.innerHTML = "Camera not supported. <a href='https://testedturtle.netlify.app' target='_blank'>Open in Chrome/Safari</a>.";
-        console.error("navigator.mediaDevices or getUserMedia not available");
+        statusEl.innerHTML = "Camera not supported. Try <a href='https://phantom.app/' target='_blank'>Phantom</a> or a standard browser.";
         return;
       }
 
+      // Check camera permission status
+      try {
+        const permissionStatus = await navigator.permissions.query({ name: 'camera' });
+        console.log('Camera permission state:', permissionStatus.state);
+        if (permissionStatus.state === 'denied') {
+          statusEl.textContent = 'Camera access is denied. Please enable it in your browser settings for this site.';
+          return;
+        }
+      } catch (error) {
+        console.error('Permission query error:', error);
+        // Proceed anyway, as this is a fallback and not critical
+      }
+
+      // Create canvas for photo capture
       let canvas = document.createElement("canvas");
       canvas.style.display = "none";
       document.body.appendChild(canvas);
 
       if (!isCameraActive) {
+        // Start camera
         try {
           console.log("Requesting camera access...");
           const stream = await navigator.mediaDevices.getUserMedia({ 
-            video: { 
-              facingMode: "environment",
-              width: { ideal: 480, max: 480 },
-              height: { ideal: 360, max: 360 }
-            }
+            video: { facingMode: "environment" }
           });
           video.srcObject = stream;
           video.style.display = "block";
-          console.log("Stream tracks:", stream.getVideoTracks());
           video.onloadedmetadata = () => {
-            console.log("Video metadata loaded: width=", video.videoWidth, "height=", video.videoHeight);
+            console.log("Video dimensions:", video.videoWidth, video.videoHeight);
             if (video.videoWidth === 0 || video.videoHeight === 0) {
               statusEl.textContent = "Camera started but no preview. Check permissions.";
             } else {
@@ -424,10 +440,15 @@
             }
           };
         } catch (error) {
-          statusEl.textContent = "Cannot access camera: " + error.message;
-          console.error("Camera error:", error.name, error.message);
+          console.error("Camera access failed:", error.name, error.message);
+          if (error.name === 'NotAllowedError') {
+            statusEl.textContent = 'Camera access denied. Please allow camera access in your browser settings.';
+          } else {
+            statusEl.textContent = `Camera error: ${error.name} - ${error.message}`;
+          }
         }
       } else {
+        // Capture photo
         if (video.videoWidth === 0 || video.videoHeight === 0) {
           statusEl.textContent = "No camera preview available.";
           console.error("Video dimensions invalid:", video.videoWidth, video.videoHeight);
@@ -454,10 +475,22 @@
       }
     }
 
+    // Updated postPhoto function to use Firebase Storage
     async function postPhoto(imageData, imageType, location) {
       try {
+        // Convert base64 to blob
+        const response = await fetch(imageData);
+        const blob = await response.blob();
+
+        // Upload to Firebase Storage
+        const storageRef = firebase.storage().ref();
+        const imageRef = storageRef.child(`images/${Date.now()}.jpg`); // Unique filename
+        await imageRef.put(blob);
+        const imageUrl = await imageRef.getDownloadURL(); // Get the public URL
+
+        // Save the URL to Firestore
         const docRef = await db.collection("LitterSnaps").add({
-          image: imageData,
+          imageUrl: imageUrl, // Store the URL instead of base64
           timestamp: firebase.firestore.FieldValue.serverTimestamp(),
           upvotes: 0,
           downvotes: 0,
@@ -476,6 +509,7 @@
       }
     }
 
+    // Updated displayPosts function to use imageUrl
     async function displayPosts() {
       try {
         const snapshot = await db.collection("LitterSnaps").orderBy("timestamp", "desc").get();
@@ -487,7 +521,7 @@
           const div = document.createElement("div");
           div.className = "post";
           div.innerHTML = `
-            <img src="${post.image}">
+            <img src="${post.imageUrl}"> <!-- Use imageUrl instead of image -->
             <p>Type: ${post.type.charAt(0).toUpperCase() + post.type.slice(1)}</p>
             <p>Location: ${post.location}</p>
             <p>Posted by: ${post.postedBy.slice(0, 6)}...${post.postedBy.slice(-4)}</p>
@@ -504,6 +538,7 @@
       }
     }
 
+    // Rate photo function (unchanged)
     async function ratePhoto(docId, voteType) {
       if (!publicKey) {
         statusEl.textContent = "Connect your wallet to vote!";
