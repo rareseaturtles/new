@@ -17,10 +17,10 @@
   <meta name="twitter:image" content="https://i.ibb.co/chSTPcZT/image-2.jpg">
   <style>
     body {
-      font-family: 'Arial', sans-serif;
+      font-family: 'Roboto', sans-serif; /* Updated to a more modern font */
       margin: 0;
       padding: 0;
-      background: linear-gradient(135deg, #e0f7fa, #80deea);
+      background: linear-gradient(135deg, #e0f7fa, #a5d6a7); /* Eco-friendly green gradient */
       color: #333;
       min-height: 100vh;
       display: flex;
@@ -30,16 +30,16 @@
     }
     h1 {
       font-size: 48px;
-      color: #006064;
+      color: #2e7d32; /* Dark green for environmental branding */
       margin: 20px 0;
+      text-shadow: 2px 2px 4px rgba(46, 125, 50, 0.3);
       font-family: 'Trebuchet MS', sans-serif;
-      text-shadow: 2px 2px 4px rgba(0, 96, 100, 0.3);
     }
     .logo {
       width: 120px;
       height: auto;
       border-radius: 50%;
-      border: 4px solid #006064;
+      border: 4px solid #2e7d32; /* Updated to match eco-theme */
       margin: 20px auto;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
       transition: transform 0.3s;
@@ -54,7 +54,7 @@
       border-radius: 15px;
       box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
       max-width: 700px;
-      border: 3px solid #4dd0e1;
+      border: 3px solid #4caf50; /* Updated to green for eco-theme */
       text-align: center;
     }
     .camera-container {
@@ -75,7 +75,7 @@
       padding: 12px 25px;
       font-size: 16px;
       color: #fff;
-      background: linear-gradient(135deg, #006064, #003d40);
+      background: linear-gradient(135deg, #2e7d32, #1b5e20); /* Darker green gradient */
       border: none;
       border-radius: 8px;
       cursor: pointer;
@@ -104,7 +104,7 @@
     #camera-btn:hover:not(:disabled):not(.active) {
       transform: translateY(-2px);
       box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-      background: linear-gradient(135deg, #003d40, #001e20);
+      background: linear-gradient(135deg, #1b5e20, #103d15);
     }
     #camera-btn.active:hover:not(:disabled) {
       transform: translateX(-50%) scale(1.1);
@@ -115,7 +115,7 @@
       top: 10px;
       right: 10px;
       padding: 8px 15px;
-      background: linear-gradient(135deg, #006064, #003d40);
+      background: linear-gradient(135deg, #2e7d32, #1b5e20);
       color: #fff;
       border: none;
       border-radius: 8px;
@@ -126,7 +126,7 @@
     #connect-btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-      background: linear-gradient(135deg, #003d40, #001e20);
+      background: linear-gradient(135deg, #1b5e20, #103d15);
     }
     #gallery {
       margin-top: 20px;
@@ -139,36 +139,65 @@
     }
     .post {
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(224, 247, 250, 0.95));
-      border: 2px solid #4dd0e1;
+      border: 2px solid #4caf50; /* Updated to green for eco-theme */
       padding: 20px;
       border-radius: 15px;
       width: 100%;
       max-width: 360px;
-      box-shadow: 0 8px 20px rgba(0, 96, 100, 0.15);
+      box-shadow: 0 8px 20px rgba(46, 125, 50, 0.15);
       box-sizing: border-box;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
+      animation: fadeIn 1s ease-in;
     }
     .post:hover {
       transform: translateY(-5px);
-      box-shadow: 0 12px 25px rgba(0, 96, 100, 0.25);
+      box-shadow: 0 12px 25px rgba(46, 125, 50, 0.25);
     }
     .post img {
       width: 100%;
       height: auto;
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      margin-bottom: 15px;
+      border-bottom: 3px solid #4caf50; /* Green border for eco-theme */
+      position: relative;
+    }
+    .post img::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(46, 125, 50, 0.1); /* Subtle eco-green overlay */
+      border-radius: 10px 10px 0 0;
+    }
+    .post .post-overlay {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 50%;
+      padding: 5px;
+      font-size: 1.5em;
+      color: #2e7d32;
+      animation: bounce 2s infinite;
     }
     .post p {
       margin: 10px 0;
       font-size: 16px;
-      color: #006064;
+      color: #1b5e20; /* Darker green for text */
       line-height: 1.4;
     }
     .post-details {
       display: flex;
       flex-direction: column;
       gap: 5px;
+    }
+    .post-details .posted-by {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
     }
     .rating-buttons {
       display: flex;
@@ -179,16 +208,16 @@
     .rating-btn {
       padding: 8px 16px;
       font-size: 20px;
-      background: #e0f7fa;
-      color: #006064;
-      border: 2px solid #006064;
+      background: #e8f5e9; /* Light green for eco-theme */
+      color: #2e7d32;
+      border: 2px solid #2e7d32;
       border-radius: 8px;
       cursor: pointer;
       transition: background 0.3s ease, transform 0.2s ease;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
     .rating-btn:hover {
-      background: #b2ebf2;
+      background: #c8e6c9;
       transform: scale(1.05);
     }
     .rating-btn:disabled {
@@ -200,8 +229,8 @@
     .share-btn, .copy-btn {
       padding: 6px 12px;
       font-size: 14px;
-      background: #80deea;
-      color: #006064;
+      background: #4caf50;
+      color: #fff;
       border: none;
       border-radius: 6px;
       cursor: pointer;
@@ -209,20 +238,19 @@
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
     .share-btn:hover, .copy-btn:hover {
-      background: #4dd0e1;
+      background: #2e7d32;
       transform: scale(1.05);
     }
     .donate-text {
-      font-size: 12px;
-      color: #006064;
-      margin-left: 5px;
-      text-decoration: none;
-      cursor: default;
+      color: #757575; /* Subtle gray for discrete text */
+      font-size: 0.9em;
+      font-weight: normal;
+      white-space: nowrap; /* Keeps text intact */
     }
     #status {
       margin-top: 10px;
       font-size: 16px;
-      color: #006064;
+      color: #2e7d32;
       font-weight: bold;
     }
     .form-group {
@@ -232,19 +260,32 @@
       padding: 10px;
       font-size: 16px;
       border-radius: 6px;
-      border: 1px solid #006064;
+      border: 1px solid #2e7d32;
       width: 100%;
       max-width: 240px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: border-color 0.3s ease;
+    }
+    select:focus, input[type="text"]:focus {
+      border-color: #1b5e20;
+      outline: none;
     }
     .rewards-text {
       font-size: 14px;
-      color: #003d40;
+      color: #1b5e20;
       margin: 15px 0;
-      background: rgba(224, 247, 250, 0.8);
+      background: rgba(232, 245, 233, 0.8); /* Light green for eco-theme */
       padding: 12px;
       border-radius: 8px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
     }
     @media (max-width: 600px) {
       h1 { font-size: 32px; }
@@ -258,6 +299,8 @@
       #gallery { gap: 15px; }
       .rating-btn { padding: 6px 12px; font-size: 18px; }
       .share-btn, .copy-btn { padding: 5px 10px; font-size: 12px; }
+      .post-details .posted-by { flex-direction: column; align-items: flex-start; gap: 5px; }
+      .copy-btn, .donate-text { width: 100%; text-align: left; }
     }
   </style>
 </head>
@@ -348,7 +391,7 @@
         walletName = "Solflare";
         console.log("Solflare detected");
       } else {
-        statusEl.innerHTML = 'No supported wallet detected. Install <a href="https://phantom.app/" target="_blank" style="color: #006064; text-decoration: underline;">Phantom</a>, <a href="https://backpack.app/" target="_blank" style="color: #006064; text-decoration: underline;">Backpack</a>, or download <a href="https://apps.apple.com/app/jupiter/id1634567890" target="_blank" style="color: #006064; text-decoration: underline;">Jupiter Mobile (iOS)</a> / <a href="https://play.google.com/store/apps/details?id=com.jupiter.mobile" target="_blank" style="color: #006064; text-decoration: underline;">(Android)</a>.';
+        statusEl.innerHTML = 'No supported wallet detected. Install <a href="https://phantom.app/" target="_blank" style="color: #2e7d32; text-decoration: underline;">Phantom</a>, <a href="https://backpack.app/" target="_blank" style="color: #2e7d32; text-decoration: underline;">Backpack</a>, or download <a href="https://apps.apple.com/app/jupiter/id1634567890" target="_blank" style="color: #2e7d32; text-decoration: underline;">Jupiter Mobile (iOS)</a> / <a href="https://play.google.com/store/apps/details?id=com.jupiter.mobile" target="_blank" style="color: #2e7d32; text-decoration: underline;">(Android)</a>.';
         console.error("No supported wallet detected");
         return;
       }
@@ -535,14 +578,15 @@
           div.className = "post";
           div.innerHTML = `
             <img src="${post.image}">
+            <div class="post-overlay"><span class="eco-icon">🌱</span></div>
             <div class="post-details">
-              <p>Type: ${post.type.charAt(0).toUpperCase() + post.type.slice(1)}</p>
-              <p>Location: ${post.location}</p>
-              <p>Posted by: ${post.postedBy.slice(0, 6)}...${post.postedBy.slice(-4)}
+              <p><strong>Type:</strong> ${post.type.charAt(0).toUpperCase() + post.type.slice(1)}</p>
+              <p><strong>Location:</strong> ${post.location}</p>
+              <p class="posted-by"><strong>Posted by:</strong> ${post.postedBy.slice(0, 6)}...${post.postedBy.slice(-4)}
                 <button class="copy-btn" onclick="copyToClipboard('${post.postedBy}')">Copy</button>
                 <span class="donate-text">| Donate to Creator</span>
               </p>
-              <p>👍 ${post.upvotes || 0} | 👎 ${post.downvotes || 0}</p>
+              <p><strong>👍 ${post.upvotes || 0} | 👎 ${post.downvotes || 0}</strong></p>
             </div>
             <div class="rating-buttons">
               <button class="rating-btn" onclick="ratePhoto('${doc.id}', 'up')" ${hasVoted || !publicKey ? "disabled" : ""}>👍</button>
