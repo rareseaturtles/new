@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Litter Leaks</title>
+  <!-- Open Graph Meta Tags for Social Sharing -->
+  <meta property="og:title" content="Litter Leaks Post">
+  <meta property="og:description" content="Check out this cleanup effort on Litter Leaks!">
+  <meta property="og:image" content="https://i.ibb.co/chSTPcZT/image-2.jpg">
+  <meta property="og:url" content="https://yourwebsite.com"> <!-- Replace with your actual URL -->
+  <meta property="og:type" content="website">
   <style>
     body {
       font-family: 'Arial', sans-serif;
@@ -175,6 +181,37 @@
       background: #b0bec5;
       cursor: not-allowed;
     }
+    .share-btn {
+      padding: 6px 12px;
+      font-size: 16px;
+      background: #80deea;
+      color: #006064;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .share-btn:hover {
+      background: #4dd0e1;
+    }
+    .copy-btn {
+      padding: 4px 8px;
+      font-size: 12px;
+      background: #e0f7fa;
+      color: #006064;
+      border: 1px solid #006064;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-left: 5px;
+      transition: background 0.3s ease;
+    }
+    .copy-btn:hover {
+      background: #b2ebf2;
+    }
+    .donate-text {
+      font-size: 14px;
+      color: #003d40;
+    }
     #status {
       margin-top: 10px;
       font-size: 16px;
@@ -241,7 +278,6 @@
   <!-- Firebase SDK Compat Scripts -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script> <!-- Added Firebase Storage -->
   <!-- Solana Web3.js -->
   <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.91.1/lib/index.iife.min.js"></script>
 
@@ -268,7 +304,6 @@
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-    const storage = firebase.storage(); // Initialize Firebase Storage
 
     // Solana config
     const TOKEN_MINT_ADDRESS = new solanaWeb3.PublicKey("53hZ5wdfphd8wUoh6rqrv5STvB58yBRaXuZFAWwitKm8");
@@ -280,45 +315,35 @@
     let walletProvider = null;
     let walletName = "Unknown";
 
-    // Connect wallet function (unchanged)
+    // Updated connectWallet function with Jupiter Mobile support
     async function connectWallet() {
       console.log("connectWallet called");
       walletProvider = null;
       publicKey = null;
       walletName = "Unknown";
 
-      // Detect Phantom
       if (window.solana && window.solana.isPhantom) {
         walletProvider = window.solana;
         walletName = "Phantom";
         console.log("Phantom detected");
-      }
-      // Detect Backpack
-      else if (window.backpack && window.backpack.isBackpack) {
+      } else if (window.backpack && window.backpack.isBackpack) {
         walletProvider = window.backpack;
         walletName = "Backpack";
         console.log("Backpack detected");
-      }
-      // Detect Jupiter Mobile (works on both iOS and Android)
-      else if (window.jup) {
+      } else if (window.jup) {
         walletProvider = window.jup;
         walletName = "Jupiter Mobile";
         console.log("Jupiter Mobile detected");
-      }
-      // Detect Solflare
-      else if (window.solflare && window.solflare.isSolflare) {
+      } else if (window.solflare && window.solflare.isSolflare) {
         walletProvider = window.solflare;
         walletName = "Solflare";
         console.log("Solflare detected");
-      }
-      // Fallback with links for both iOS and Android
-      else {
+      } else {
         statusEl.innerHTML = 'No supported wallet detected. Install <a href="https://phantom.app/" target="_blank" style="color: #006064; text-decoration: underline;">Phantom</a>, <a href="https://backpack.app/" target="_blank" style="color: #006064; text-decoration: underline;">Backpack</a>, or download <a href="https://apps.apple.com/app/jupiter/id1634567890" target="_blank" style="color: #006064; text-decoration: underline;">Jupiter Mobile (iOS)</a> / <a href="https://play.google.com/store/apps/details?id=com.jupiter.mobile" target="_blank" style="color: #006064; text-decoration: underline;">(Android)</a>.';
         console.error("No supported wallet detected");
         return;
       }
 
-      // Rest of the connection logic remains the same
       try {
         if (!walletProvider.connect) {
           throw new Error("Wallet provider does not support connect method");
@@ -348,7 +373,6 @@
       }
     }
 
-    // Check token ownership function (unchanged)
     async function checkTokenOwnership() {
       if (!publicKey) {
         statusEl.textContent = "No wallet connected.";
@@ -386,23 +410,19 @@
       }
     }
 
-    // Handle camera function (unchanged)
     async function handleCamera() {
       console.log("handleCamera called, isCameraActive:", isCameraActive);
       
-      // Check if user is a token holder
       if (!isTokenHolder) {
         statusEl.textContent = "Only token (53hZ5w...) holders can use the camera.";
         return;
       }
 
-      // Verify camera API support
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         statusEl.innerHTML = "Camera not supported. Try <a href='https://phantom.app/' target='_blank'>Phantom</a> or a standard browser.";
         return;
       }
 
-      // Check camera permission status
       try {
         const permissionStatus = await navigator.permissions.query({ name: 'camera' });
         console.log('Camera permission state:', permissionStatus.state);
@@ -412,16 +432,13 @@
         }
       } catch (error) {
         console.error('Permission query error:', error);
-        // Proceed anyway, as this is a fallback and not critical
       }
 
-      // Create canvas for photo capture
       let canvas = document.createElement("canvas");
       canvas.style.display = "none";
       document.body.appendChild(canvas);
 
       if (!isCameraActive) {
-        // Start camera
         try {
           console.log("Requesting camera access...");
           const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -448,7 +465,6 @@
           }
         }
       } else {
-        // Capture photo
         if (video.videoWidth === 0 || video.videoHeight === 0) {
           statusEl.textContent = "No camera preview available.";
           console.error("Video dimensions invalid:", video.videoWidth, video.videoHeight);
@@ -475,22 +491,10 @@
       }
     }
 
-    // Updated postPhoto function to use Firebase Storage
     async function postPhoto(imageData, imageType, location) {
       try {
-        // Convert base64 to blob
-        const response = await fetch(imageData);
-        const blob = await response.blob();
-
-        // Upload to Firebase Storage
-        const storageRef = firebase.storage().ref();
-        const imageRef = storageRef.child(`images/${Date.now()}.jpg`); // Unique filename
-        await imageRef.put(blob);
-        const imageUrl = await imageRef.getDownloadURL(); // Get the public URL
-
-        // Save the URL to Firestore
         const docRef = await db.collection("LitterSnaps").add({
-          imageUrl: imageUrl, // Store the URL instead of base64
+          image: imageData,
           timestamp: firebase.firestore.FieldValue.serverTimestamp(),
           upvotes: 0,
           downvotes: 0,
@@ -509,7 +513,6 @@
       }
     }
 
-    // Updated displayPosts function to use imageUrl
     async function displayPosts() {
       try {
         const snapshot = await db.collection("LitterSnaps").orderBy("timestamp", "desc").get();
@@ -518,18 +521,23 @@
           const post = doc.data();
           console.log("Post data:", post);
           const hasVoted = publicKey && post.voters && post.voters.includes(publicKey);
+          const postUrl = `${window.location.origin}/#post-${doc.id}`; // Unique URL for each post
           const div = document.createElement("div");
           div.className = "post";
           div.innerHTML = `
-            <img src="${post.imageUrl}"> <!-- Use imageUrl instead of image -->
+            <img src="${post.image}">
             <p>Type: ${post.type.charAt(0).toUpperCase() + post.type.slice(1)}</p>
             <p>Location: ${post.location}</p>
-            <p>Posted by: ${post.postedBy.slice(0, 6)}...${post.postedBy.slice(-4)}</p>
+            <p>Posted by: ${post.postedBy.slice(0, 6)}...${post.postedBy.slice(-4)}
+              <button class="copy-btn" onclick="copyToClipboard('${post.postedBy}')">Copy</button>
+            </p>
             <p>👍 ${post.upvotes || 0} | 👎 ${post.downvotes || 0}</p>
             <div class="rating-buttons">
               <button class="rating-btn" onclick="ratePhoto('${doc.id}', 'up')" ${hasVoted || !publicKey ? "disabled" : ""}>👍</button>
               <button class="rating-btn" onclick="ratePhoto('${doc.id}', 'down')" ${hasVoted || !publicKey ? "disabled" : ""}>👎</button>
             </div>
+            <button class="share-btn" onclick="sharePost('${postUrl}')">Share</button>
+            <p class="donate-text">Donate to Creator</p>
           `;
           galleryEl.appendChild(div);
         });
@@ -538,7 +546,34 @@
       }
     }
 
-    // Rate photo function (unchanged)
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        statusEl.textContent = "Wallet address copied to clipboard!";
+        setTimeout(() => statusEl.textContent = "", 2000);
+      }).catch((error) => {
+        statusEl.textContent = "Failed to copy: " + error.message;
+        console.error("Copy error:", error);
+      });
+    }
+
+    function sharePost(url) {
+      if (navigator.share) {
+        navigator.share({
+          title: "Litter Leaks Post",
+          text: "Check out this cleanup effort on Litter Leaks!",
+          url: url
+        }).then(() => {
+          console.log("Post shared successfully");
+        }).catch((error) => {
+          console.error("Share error:", error);
+        });
+      } else {
+        // Fallback: Copy URL to clipboard
+        copyToClipboard(url);
+        statusEl.textContent = "Share not supported. URL copied to clipboard!";
+      }
+    }
+
     async function ratePhoto(docId, voteType) {
       if (!publicKey) {
         statusEl.textContent = "Connect your wallet to vote!";
