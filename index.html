@@ -145,11 +145,11 @@
     .post {
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(224, 247, 250, 0.95));
       border: 2px solid #4caf50;
-      padding: 20px;
+      padding: 15px;
       border-radius: 15px;
       width: 100%;
-      max-width: 360px;
-      min-width: 320px;
+      max-width: 340px;
+      min-width: 300px;
       box-shadow: 0 8px 20px rgba(46, 125, 50, 0.15);
       box-sizing: border-box;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -199,18 +199,18 @@
     .post-details {
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 3px;
       text-align: center;
-      padding: 10px 0;
+      padding: 8px 0;
       background: rgba(255, 255, 255, 0.95);
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(46, 125, 50, 0.15);
     }
     .post-details p {
-      margin: 8px 0;
-      font-size: 16px;
+      margin: 5px 0;
+      font-size: 14px;
       color: #1b5e20;
-      line-height: 1.4;
+      line-height: 1.2;
     }
     .posted-by {
       display: flex;
@@ -223,13 +223,13 @@
     .rating-buttons {
       display: flex;
       justify-content: center;
-      gap: 15px;
-      margin: 15px 0;
+      gap: 10px;
+      margin: 10px 0;
       flex-wrap: wrap;
     }
     .rating-btn {
-      padding: 10px 20px;
-      font-size: 20px;
+      padding: 8px 16px;
+      font-size: 18px;
       background: #e8f5e9;
       color: #2e7d32;
       border: 2px solid #2e7d32;
@@ -249,8 +249,8 @@
       box-shadow: none;
     }
     .copy-btn, .share-btn {
-      padding: 8px 16px;
-      font-size: 14px;
+      padding: 6px 12px;
+      font-size: 12px;
       background: #4caf50;
       color: #fff;
       border: none;
@@ -258,7 +258,7 @@
       cursor: pointer;
       transition: background 0.3s ease, transform 0.2s ease;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      margin: 5px 0;
+      margin: 3px 0;
     }
     .copy-btn:hover, .share-btn:hover {
       background: #2e7d32;
@@ -266,10 +266,10 @@
     }
     .donate-text {
       color: #757575;
-      font-size: 0.9em;
+      font-size: 0.8em;
       font-weight: normal;
       white-space: nowrap;
-      margin-left: 10px;
+      margin-left: 8px;
     }
     #status {
       margin-top: 10px;
@@ -314,21 +314,21 @@
     @media (max-width: 600px) {
       h1 { font-size: 32px; }
       button { padding: 8px 16px; font-size: 14px; min-width: 100px; }
-      .post { max-width: 100%; padding: 15px; min-width: 280px; }
+      .post { max-width: 100%; padding: 10px; min-width: 280px; }
       #video { width: 100%; height: auto; max-width: 480px; max-height: 360px; }
       #status { font-size: 14px; }
       #connect-btn { font-size: 12px; padding: 6px 12px; }
       select, input[type="text"] { font-size: 14px; max-width: 200px; }
       .content { padding: 15px; margin: 15px; }
       #gallery { padding: 0 5px; }
-      .rating-btn { padding: 8px 16px; font-size: 18px; width: 100%; box-sizing: border-box; }
-      .copy-btn, .share-btn { width: 100%; padding: 6px 12px; font-size: 12px; }
-      .post-details { padding: 8px 0; }
-      .post-details p { font-size: 14px; }
-      .rating-buttons { flex-direction: column; gap: 10px; }
-      .posted-by { flex-direction: column; align-items: center; gap: 5px; }
+      .rating-btn { padding: 6px 12px; font-size: 16px; width: 100%; box-sizing: border-box; }
+      .copy-btn, .share-btn { width: 100%; padding: 5px 10px; font-size: 11px; }
+      .post-details { padding: 6px 0; }
+      .post-details p { font-size: 12px; }
+      .rating-buttons { flex-direction: column; gap: 8px; }
+      .posted-by { flex-direction: column; align-items: center; gap: 3px; }
       .donate-text { margin-left: 0; text-align: center; }
-      .post-container { gap: 10px; }
+      .post-container { gap: 8px; }
     }
   </style>
 </head>
@@ -394,8 +394,8 @@
     let isCameraActive = false;
     let walletProvider = null;
     let walletName = "Unknown";
+    let currentSessionId = null;
 
-    // Updated connectWallet function with Jupiter Mobile support
     async function connectWallet() {
       console.log("connectWallet called");
       walletProvider = null;
@@ -573,54 +573,10 @@
 
     async function postPhoto(imageData, imageType, location) {
       try {
-        if (!publicKey) {
-          statusEl.textContent = "Please connect your wallet to post photos.";
-          return;
+        if (!currentSessionId) {
+          currentSessionId = `session_${publicKey}_${Date.now()}`;
         }
 
-        // Check existing posts for this user to enforce Before → After sequence
-        const userPostsSnapshot = await db.collection("LitterSnaps")
-          .where("postedBy", "==", publicKey)
-          .orderBy("timestamp", "desc")
-          .limit(1)
-          .get();
-
-        let canPost = true;
-        let sessionId = null;
-
-        if (!userPostsSnapshot.empty) {
-          const latestPost = userPostsSnapshot.docs[0].data();
-          sessionId = latestPost.sessionId || `session_${publicKey}_${Date.now()}`;
-
-          if (latestPost.type === "before" && imageType === "before") {
-            statusEl.textContent = "You already posted a 'Before' photo for this session. Please post the 'After' photo now.";
-            canPost = false;
-          } else if (latestPost.type === "after" && imageType === "after") {
-            statusEl.textContent = "You already completed a cleanup sequence. Start a new session with a 'Before' photo.";
-            canPost = false;
-          } else if (latestPost.type === "before" && imageType === "after") {
-            // Allow posting After after Before in the same session
-            sessionId = latestPost.sessionId; // Use the existing session ID
-          } else if (latestPost.type === "after" && imageType === "before") {
-            // Start a new session for a new cleanup
-            sessionId = `session_${publicKey}_${Date.now()}`;
-          }
-        } else {
-          // No posts yet, allow only "before" for a new session
-          if (imageType === "after") {
-            statusEl.textContent = "You must post a 'Before' photo first to start a cleanup sequence.";
-            canPost = false;
-          } else {
-            sessionId = `session_${publicKey}_${Date.now()}`; // New session for Before
-          }
-        }
-
-        if (!canPost) {
-          cameraBtn.disabled = true; // Prevent further attempts until corrected
-          return;
-        }
-
-        // If we reach here, the post is allowed
         const docRef = await db.collection("LitterSnaps").add({
           image: imageData,
           timestamp: firebase.firestore.FieldValue.serverTimestamp(),
@@ -630,19 +586,19 @@
           postedBy: publicKey,
           type: imageType,
           location: location,
-          sessionId: sessionId // Link Before and After posts with a session ID
+          sessionId: currentSessionId
         });
 
-        console.log("Photo posted with ID:", docRef.id, "Session ID:", sessionId);
+        console.log("Photo posted with ID:", docRef.id, "Session ID:", currentSessionId);
         statusEl.textContent = `Photo posted successfully! (${imageType} image)`;
 
-        // Update camera button state based on the sequence
         if (imageType === "before") {
-          statusEl.textContent += " Please post the 'After' photo next.";
-          cameraBtn.disabled = true; // Disable until After is posted
+          statusEl.textContent += " Take the 'After' photo next.";
+          cameraBtn.disabled = true;
         } else if (imageType === "after") {
-          statusEl.textContent += " Cleanup sequence complete! You can start a new sequence with a 'Before' photo.";
-          cameraBtn.disabled = false; // Re-enable for a new Before
+          currentSessionId = null;
+          cameraBtn.disabled = false;
+          statusEl.textContent += " Cleanup sequence complete!";
         }
 
         locationInput.value = "";
@@ -670,7 +626,7 @@
 
         for (const sessionId in postsBySession) {
           const sessionPosts = postsBySession[sessionId].sort((a, b) => 
-            a.type === "before" ? -1 : 1 // Sort Before before After
+            a.type === "before" ? -1 : 1
           );
 
           const sessionDiv = document.createElement("div");
@@ -691,9 +647,9 @@
               <div class="post-overlay"><span class="eco-icon">🌱</span></div>
               <div class="post-details">
                 <p><strong>Location:</strong> ${post.location}</p>
-                <p class="posted-by"><strong>Posted by:</strong> ${post.postedBy.slice(0, 6)}...${post.postedBy.slice(-4)}
+                <p class="posted-by"><strong>By:</strong> ${post.postedBy.slice(0, 6)}...${post.postedBy.slice(-4)}
                   <button class="copy-btn" onclick="copyToClipboard('${post.postedBy}')">Copy</button>
-                  <span class="donate-text">| Donate to Creator</span>
+                  <span class="donate-text">| Donate</span>
                 </p>
                 <p><strong>👍 ${post.upvotes || 0} | 👎 ${post.downvotes || 0}</strong></p>
               </div>
@@ -775,7 +731,6 @@
       }
     }
 
-    // Load posts on page load
     displayPosts();
   </script>
 </body>
