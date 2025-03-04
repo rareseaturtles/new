@@ -17,10 +17,10 @@
   <meta name="twitter:image" content="https://i.ibb.co/chSTPcZT/image-2.jpg">
   <style>
     body {
-      font-family: 'Roboto', sans-serif; /* Updated to a more modern font */
+      font-family: 'Roboto', sans-serif;
       margin: 0;
       padding: 0;
-      background: linear-gradient(135deg, #e0f7fa, #a5d6a7); /* Eco-friendly green gradient */
+      background: linear-gradient(135deg, #e0f7fa, #a5d6a7);
       color: #333;
       min-height: 100vh;
       display: flex;
@@ -30,7 +30,7 @@
     }
     h1 {
       font-size: 48px;
-      color: #2e7d32; /* Dark green for environmental branding */
+      color: #2e7d32;
       margin: 20px 0;
       text-shadow: 2px 2px 4px rgba(46, 125, 50, 0.3);
       font-family: 'Trebuchet MS', sans-serif;
@@ -39,7 +39,7 @@
       width: 120px;
       height: auto;
       border-radius: 50%;
-      border: 4px solid #2e7d32; /* Updated to match eco-theme */
+      border: 4px solid #2e7d32;
       margin: 20px auto;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
       transition: transform 0.3s;
@@ -54,7 +54,7 @@
       border-radius: 15px;
       box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
       max-width: 700px;
-      border: 3px solid #4caf50; /* Updated to green for eco-theme */
+      border: 3px solid #4caf50;
       text-align: center;
     }
     .camera-container {
@@ -75,7 +75,7 @@
       padding: 12px 25px;
       font-size: 16px;
       color: #fff;
-      background: linear-gradient(135deg, #2e7d32, #1b5e20); /* Darker green gradient */
+      background: linear-gradient(135deg, #2e7d32, #1b5e20);
       border: none;
       border-radius: 8px;
       cursor: pointer;
@@ -130,20 +130,26 @@
     }
     #gallery {
       margin-top: 20px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 20px;
       width: 100%;
       max-width: 1200px;
+      overflow-x: auto; /* Enable horizontal scrolling */
+      -webkit-overflow-scrolling: touch; /* Smooth scrolling on mobile */
+      padding: 20px 0;
+      scroll-behavior: smooth;
+    }
+    .post-container {
+      display: flex;
+      gap: 20px;
+      padding: 0 10px;
     }
     .post {
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(224, 247, 250, 0.95));
-      border: 2px solid #4caf50; /* Updated to green for eco-theme */
+      border: 2px solid #4caf50;
       padding: 20px;
       border-radius: 15px;
       width: 100%;
       max-width: 360px;
+      min-width: 320px; /* Ensure posts are wide enough for swiping */
       box-shadow: 0 8px 20px rgba(46, 125, 50, 0.15);
       box-sizing: border-box;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -158,7 +164,7 @@
       height: auto;
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      border-bottom: 3px solid #4caf50; /* Green border for eco-theme */
+      border-bottom: 3px solid #4caf50;
       position: relative;
     }
     .post img::after {
@@ -168,7 +174,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(46, 125, 50, 0.1); /* Subtle eco-green overlay */
+      background: rgba(46, 125, 50, 0.1);
       border-radius: 10px 10px 0 0;
     }
     .post .post-overlay {
@@ -182,44 +188,52 @@
       color: #2e7d32;
       animation: bounce 2s infinite;
     }
+    .post-header {
+      font-size: 20px;
+      font-weight: bold;
+      color: #2e7d32;
+      margin-bottom: 10px;
+      text-align: center;
+      text-shadow: 1px 1px 3px rgba(46, 125, 50, 0.3);
+    }
     .post-details {
       display: flex;
       flex-direction: column;
       gap: 5px;
-      text-align: center; /* Center-align text */
-      padding: 10px 0; /* Add padding for spacing */
-      background: rgba(255, 255, 255, 0.95); /* Slight transparency for depth */
-      border-radius: 8px; /* Rounded corners for a modern look */
-      box-shadow: 0 2px 8px rgba(46, 125, 50, 0.15); /* Eco-green shadow */
+      text-align: center;
+      padding: 10px 0;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(46, 125, 50, 0.15);
     }
     .post-details p {
-      margin: 8px 0; /* Reduce margin for tighter spacing */
-      font-size: 16px; /* Ensure readable font size */
-      color: #1b5e20; /* Maintain the darker green for eco-theme */
+      margin: 8px 0;
+      font-size: 16px;
+      color: #1b5e20;
       line-height: 1.4;
     }
     .posted-by {
       display: flex;
-      justify-content: center; /* Center the posted-by content */
+      justify-content: center;
       align-items: center;
       gap: 10px;
       flex-wrap: wrap;
-      text-align: center; /* Center text within posted-by */
+      text-align: center;
     }
     .rating-buttons {
       display: flex;
-      justify-content: center; /* Center the like/dislike buttons */
+      justify-content: center;
       gap: 15px;
       margin: 15px 0;
-      flex-wrap: wrap; /* Allow wrapping on small screens */
+      flex-wrap: wrap;
     }
     .rating-btn {
-      padding: 10px 20px; /* Larger padding for better mobile tap targets */
+      padding: 10px 20px;
       font-size: 20px;
-      background: #e8f5e9; /* Light green for eco-theme */
+      background: #e8f5e9;
       color: #2e7d32;
       border: 2px solid #2e7d32;
-      border-radius: 10px; /* Slightly larger radius for a softer look */
+      border-radius: 10px;
       cursor: pointer;
       transition: background 0.3s ease, transform 0.2s ease;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -235,7 +249,7 @@
       box-shadow: none;
     }
     .copy-btn, .share-btn {
-      padding: 8px 16px; /* Larger padding for mobile */
+      padding: 8px 16px;
       font-size: 14px;
       background: #4caf50;
       color: #fff;
@@ -244,7 +258,7 @@
       cursor: pointer;
       transition: background 0.3s ease, transform 0.2s ease;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      margin: 5px 0; /* Add vertical margin for spacing */
+      margin: 5px 0;
     }
     .copy-btn:hover, .share-btn:hover {
       background: #2e7d32;
@@ -255,7 +269,7 @@
       font-size: 0.9em;
       font-weight: normal;
       white-space: nowrap;
-      margin-left: 10px; /* Add spacing from the Copy button */
+      margin-left: 10px;
     }
     #status {
       margin-top: 10px;
@@ -284,7 +298,7 @@
       font-size: 14px;
       color: #1b5e20;
       margin: 15px 0;
-      background: rgba(232, 245, 233, 0.8); /* Light green for eco-theme */
+      background: rgba(232, 245, 233, 0.8);
       padding: 12px;
       border-radius: 8px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -300,34 +314,21 @@
     @media (max-width: 600px) {
       h1 { font-size: 32px; }
       button { padding: 8px 16px; font-size: 14px; min-width: 100px; }
-      .post { max-width: 100%; padding: 15px; }
+      .post { max-width: 100%; padding: 15px; min-width: 280px; }
       #video { width: 100%; height: auto; max-width: 480px; max-height: 360px; }
       #status { font-size: 14px; }
       #connect-btn { font-size: 12px; padding: 6px 12px; }
       select, input[type="text"] { font-size: 14px; max-width: 200px; }
       .content { padding: 15px; margin: 15px; }
-      #gallery { gap: 15px; }
+      #gallery { padding: 0 5px; }
       .rating-btn { padding: 8px 16px; font-size: 18px; width: 100%; box-sizing: border-box; }
       .copy-btn, .share-btn { width: 100%; padding: 6px 12px; font-size: 12px; }
-      .post-details {
-        padding: 8px 0; /* Reduce padding on mobile */
-      }
-      .post-details p {
-        font-size: 14px; /* Slightly smaller font for mobile, but still readable */
-      }
-      .rating-buttons {
-        flex-direction: column; /* Stack buttons vertically on very small screens */
-        gap: 10px;
-      }
-      .posted-by {
-        flex-direction: column; /* Stack posted-by elements on mobile */
-        align-items: center;
-        gap: 5px;
-      }
-      .donate-text {
-        margin-left: 0; /* Remove margin on mobile for stacked layout */
-        text-align: center; /* Center the donate text on mobile */
-      }
+      .post-details { padding: 8px 0; }
+      .post-details p { font-size: 14px; }
+      .rating-buttons { flex-direction: column; gap: 10px; }
+      .posted-by { flex-direction: column; align-items: center; gap: 5px; }
+      .donate-text { margin-left: 0; text-align: center; }
+      .post-container { gap: 10px; }
     }
   </style>
 </head>
@@ -393,6 +394,7 @@
     let isCameraActive = false;
     let walletProvider = null;
     let walletName = "Unknown";
+    let currentSessionId = null; // Track the current cleanup session ID
 
     // Updated connectWallet function with Jupiter Mobile support
     async function connectWallet() {
@@ -572,6 +574,11 @@
 
     async function postPhoto(imageData, imageType, location) {
       try {
+        // Generate a unique session ID if not already set (for Before → After pairing)
+        if (!currentSessionId) {
+          currentSessionId = `session_${publicKey}_${Date.now()}`;
+        }
+
         const docRef = await db.collection("LitterSnaps").add({
           image: imageData,
           timestamp: firebase.firestore.FieldValue.serverTimestamp(),
@@ -580,10 +587,23 @@
           voters: [],
           postedBy: publicKey,
           type: imageType,
-          location: location
+          location: location,
+          sessionId: currentSessionId // Link Before and After posts with a session ID
         });
-        console.log("Photo posted with ID:", docRef.id);
-        statusEl.textContent = "Photo posted successfully!";
+
+        console.log("Photo posted with ID:", docRef.id, "Session ID:", currentSessionId);
+        statusEl.textContent = `Photo posted successfully! (${imageType} image)`;
+
+        // Disable further posts of the same type in the session
+        if (imageType === "before") {
+          statusEl.textContent += " Take the 'After' photo next.";
+          cameraBtn.disabled = true; // Temporarily disable until After is posted
+        } else if (imageType === "after") {
+          currentSessionId = null; // Reset session after completing the pair
+          cameraBtn.disabled = false; // Re-enable for a new session
+          statusEl.textContent += " Cleanup sequence complete!";
+        }
+
         locationInput.value = "";
         displayPosts();
       } catch (error) {
@@ -595,34 +615,58 @@
     async function displayPosts() {
       try {
         const snapshot = await db.collection("LitterSnaps").orderBy("timestamp", "desc").get();
-        galleryEl.innerHTML = "";
+        galleryEl.innerHTML = '<div class="post-container"></div>';
+        const postContainer = galleryEl.querySelector('.post-container');
+
+        const postsBySession = {};
         snapshot.forEach((doc) => {
           const post = doc.data();
-          console.log("Post data:", post);
-          const hasVoted = publicKey && post.voters && post.voters.includes(publicKey);
-          const postUrl = `https://litterleaks.netlify.app/#post-${doc.id}`; // Unique URL for each post
-          const div = document.createElement("div");
-          div.className = "post";
-          div.innerHTML = `
-            <img src="${post.image}">
-            <div class="post-overlay"><span class="eco-icon">🌱</span></div>
-            <div class="post-details">
-              <p><strong>Type:</strong> ${post.type.charAt(0).toUpperCase() + post.type.slice(1)}</p>
-              <p><strong>Location:</strong> ${post.location}</p>
-              <p class="posted-by"><strong>Posted by:</strong> ${post.postedBy.slice(0, 6)}...${post.postedBy.slice(-4)}
-                <button class="copy-btn" onclick="copyToClipboard('${post.postedBy}')">Copy</button>
-                <span class="donate-text">| Donate to Creator</span>
-              </p>
-              <p><strong>👍 ${post.upvotes || 0} | 👎 ${post.downvotes || 0}</strong></p>
-            </div>
-            <div class="rating-buttons">
-              <button class="rating-btn" onclick="ratePhoto('${doc.id}', 'up')" ${hasVoted || !publicKey ? "disabled" : ""}>👍</button>
-              <button class="rating-btn" onclick="ratePhoto('${doc.id}', 'down')" ${hasVoted || !publicKey ? "disabled" : ""}>👎</button>
-            </div>
-            <button class="share-btn" onclick="sharePost('${postUrl}')">Share</button>
-          `;
-          galleryEl.appendChild(div);
+          if (!postsBySession[post.sessionId]) {
+            postsBySession[post.sessionId] = [];
+          }
+          postsBySession[post.sessionId].push({ id: doc.id, ...post });
         });
+
+        for (const sessionId in postsBySession) {
+          const sessionPosts = postsBySession[sessionId].sort((a, b) => 
+            a.type === "before" ? -1 : 1 // Sort Before before After
+          );
+
+          const sessionDiv = document.createElement("div");
+          sessionDiv.className = "session-post";
+          sessionDiv.style.display = "flex";
+          sessionDiv.style.gap = "20px";
+          sessionDiv.style.marginBottom = "20px";
+
+          sessionPosts.forEach((post, index) => {
+            const hasVoted = publicKey && post.voters && post.voters.includes(publicKey);
+            const postUrl = `https://litterleaks.netlify.app/#post-${post.id}`;
+            const div = document.createElement("div");
+            div.className = "post";
+            const headerText = index === 0 ? "Before Cleanup" : "After Cleanup";
+            div.innerHTML = `
+              <div class="post-header">${headerText}</div>
+              <img src="${post.image}">
+              <div class="post-overlay"><span class="eco-icon">🌱</span></div>
+              <div class="post-details">
+                <p><strong>Location:</strong> ${post.location}</p>
+                <p class="posted-by"><strong>Posted by:</strong> ${post.postedBy.slice(0, 6)}...${post.postedBy.slice(-4)}
+                  <button class="copy-btn" onclick="copyToClipboard('${post.postedBy}')">Copy</button>
+                  <span class="donate-text">| Donate to Creator</span>
+                </p>
+                <p><strong>👍 ${post.upvotes || 0} | 👎 ${post.downvotes || 0}</strong></p>
+              </div>
+              <div class="rating-buttons">
+                <button class="rating-btn" onclick="ratePhoto('${post.id}', 'up')" ${hasVoted || !publicKey ? "disabled" : ""}>👍</button>
+                <button class="rating-btn" onclick="ratePhoto('${post.id}', 'down')" ${hasVoted || !publicKey ? "disabled" : ""}>👎</button>
+              </div>
+              <button class="share-btn" onclick="sharePost('${postUrl}')">Share</button>
+            `;
+            sessionDiv.appendChild(div);
+          });
+
+          postContainer.appendChild(sessionDiv);
+        }
       } catch (error) {
         console.error("Error fetching posts:", error);
       }
