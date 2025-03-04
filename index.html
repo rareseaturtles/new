@@ -132,8 +132,8 @@
       margin-top: 20px;
       width: 100%;
       max-width: 1200px;
-      overflow-x: auto; /* Enable horizontal scrolling */
-      -webkit-overflow-scrolling: touch; /* Smooth scrolling on mobile */
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
       padding: 20px 0;
       scroll-behavior: smooth;
     }
@@ -149,7 +149,7 @@
       border-radius: 15px;
       width: 100%;
       max-width: 360px;
-      min-width: 320px; /* Ensure posts are wide enough for swiping */
+      min-width: 320px;
       box-shadow: 0 8px 20px rgba(46, 125, 50, 0.15);
       box-sizing: border-box;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -394,7 +394,6 @@
     let isCameraActive = false;
     let walletProvider = null;
     let walletName = "Unknown";
-    let currentSessionId = null; // Track the current cleanup session ID
 
     // Updated connectWallet function with Jupiter Mobile support
     async function connectWallet() {
@@ -574,11 +573,54 @@
 
     async function postPhoto(imageData, imageType, location) {
       try {
-        // Generate a unique session ID if not already set (for Before → After pairing)
-        if (!currentSessionId) {
-          currentSessionId = `session_${publicKey}_${Date.now()}`;
+        if (!publicKey) {
+          statusEl.textContent = "Please connect your wallet to post photos.";
+          return;
         }
 
+        // Check existing posts for this user to enforce Before → After sequence
+        const userPostsSnapshot = await db.collection("LitterSnaps")
+          .where("postedBy", "==", publicKey)
+          .orderBy("timestamp", "desc")
+          .limit(1)
+          .get();
+
+        let canPost = true;
+        let sessionId = null;
+
+        if (!userPostsSnapshot.empty) {
+          const latestPost = userPostsSnapshot.docs[0].data();
+          sessionId = latestPost.sessionId || `session_${publicKey}_${Date.now()}`;
+
+          if (latestPost.type === "before" && imageType === "before") {
+            statusEl.textContent = "You already posted a 'Before' photo for this session. Please post the 'After' photo now.";
+            canPost = false;
+          } else if (latestPost.type === "after" && imageType === "after") {
+            statusEl.textContent = "You already completed a cleanup sequence. Start a new session with a 'Before' photo.";
+            canPost = false;
+          } else if (latestPost.type === "before" && imageType === "after") {
+            // Allow posting After after Before in the same session
+            sessionId = latestPost.sessionId; // Use the existing session ID
+          } else if (latestPost.type === "after" && imageType === "before") {
+            // Start a new session for a new cleanup
+            sessionId = `session_${publicKey}_${Date.now()}`;
+          }
+        } else {
+          // No posts yet, allow only "before" for a new session
+          if (imageType === "after") {
+            statusEl.textContent = "You must post a 'Before' photo first to start a cleanup sequence.";
+            canPost = false;
+          } else {
+            sessionId = `session_${publicKey}_${Date.now()}`; // New session for Before
+          }
+        }
+
+        if (!canPost) {
+          cameraBtn.disabled = true; // Prevent further attempts until corrected
+          return;
+        }
+
+        // If we reach here, the post is allowed
         const docRef = await db.collection("LitterSnaps").add({
           image: imageData,
           timestamp: firebase.firestore.FieldValue.serverTimestamp(),
@@ -588,20 +630,19 @@
           postedBy: publicKey,
           type: imageType,
           location: location,
-          sessionId: currentSessionId // Link Before and After posts with a session ID
+          sessionId: sessionId // Link Before and After posts with a session ID
         });
 
-        console.log("Photo posted with ID:", docRef.id, "Session ID:", currentSessionId);
+        console.log("Photo posted with ID:", docRef.id, "Session ID:", sessionId);
         statusEl.textContent = `Photo posted successfully! (${imageType} image)`;
 
-        // Disable further posts of the same type in the session
+        // Update camera button state based on the sequence
         if (imageType === "before") {
-          statusEl.textContent += " Take the 'After' photo next.";
-          cameraBtn.disabled = true; // Temporarily disable until After is posted
+          statusEl.textContent += " Please post the 'After' photo next.";
+          cameraBtn.disabled = true; // Disable until After is posted
         } else if (imageType === "after") {
-          currentSessionId = null; // Reset session after completing the pair
-          cameraBtn.disabled = false; // Re-enable for a new session
-          statusEl.textContent += " Cleanup sequence complete!";
+          statusEl.textContent += " Cleanup sequence complete! You can start a new sequence with a 'Before' photo.";
+          cameraBtn.disabled = false; // Re-enable for a new Before
         }
 
         locationInput.value = "";
