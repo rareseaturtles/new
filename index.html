@@ -110,10 +110,9 @@
       transform: translateX(-50%) scale(1.1);
       background: rgba(255, 0, 0, 0.9);
     }
-    #connect-btn {
+    #connect-btn, #disconnect-btn {
       position: absolute;
       top: 10px;
-      right: 10px;
       padding: 8px 15px;
       background: linear-gradient(135deg, #2e7d32, #1b5e20);
       color: #fff;
@@ -123,10 +122,23 @@
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       transition: all 0.3s ease;
     }
-    #connect-btn:hover {
+    #connect-btn {
+      right: 10px;
+    }
+    #disconnect-btn {
+      right: 110px;
+      display: none;
+      background: linear-gradient(135deg, #d32f2f, #b71c1c);
+    }
+    #connect-btn:hover, #disconnect-btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    }
+    #connect-btn:hover {
       background: linear-gradient(135deg, #1b5e20, #103d15);
+    }
+    #disconnect-btn:hover {
+      background: linear-gradient(135deg, #b71c1c, #7f0000);
     }
     #gallery {
       margin-top: 20px;
@@ -166,16 +178,6 @@
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       border-bottom: 3px solid #4caf50;
       position: relative;
-    }
-    .post img::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(46, 125, 50, 0.1);
-      border-radius: 10px 10px 0 0;
     }
     .post .post-overlay {
       position: absolute;
@@ -280,7 +282,7 @@
     .form-group {
       margin: 15px 0;
     }
-    select, input[type="text"] {
+    input[type="text"] {
       padding: 10px;
       font-size: 16px;
       border-radius: 6px;
@@ -290,9 +292,32 @@
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       transition: border-color 0.3s ease;
     }
-    select:focus, input[type="text"]:focus {
+    input[type="text"]:focus {
       border-color: #1b5e20;
       outline: none;
+    }
+    .type-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin: 15px 0;
+    }
+    .type-btn {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: 2px solid #2e7d32;
+      border-radius: 6px;
+      background: #e8f5e9;
+      color: #2e7d32;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .type-btn:hover {
+      background: #c8e6c9;
+    }
+    .type-btn.selected {
+      background: #2e7d32;
+      color: #fff;
     }
     .rewards-text {
       font-size: 14px;
@@ -317,8 +342,8 @@
       .post { max-width: 100%; padding: 10px; min-width: 280px; }
       #video { width: 100%; height: auto; max-width: 480px; max-height: 360px; }
       #status { font-size: 14px; }
-      #connect-btn { font-size: 12px; padding: 6px 12px; }
-      select, input[type="text"] { font-size: 14px; max-width: 200px; }
+      #connect-btn, #disconnect-btn { font-size: 12px; padding: 6px 12px; }
+      input[type="text"] { font-size: 14px; max-width: 200px; }
       .content { padding: 15px; margin: 15px; }
       #gallery { padding: 0 5px; }
       .rating-btn { padding: 6px 12px; font-size: 16px; width: 100%; box-sizing: border-box; }
@@ -329,19 +354,19 @@
       .posted-by { flex-direction: column; align-items: center; gap: 3px; }
       .donate-text { margin-left: 0; text-align: center; }
       .post-container { gap: 8px; }
+      .type-btn { padding: 8px 16px; font-size: 14px; }
     }
   </style>
 </head>
 <body>
   <button id="connect-btn" onclick="connectWallet()">Connect Wallet</button>
+  <button id="disconnect-btn" onclick="disconnectWallet()">Disconnect</button>
   <img class="logo" src="https://www.arweave.net/0UBZmi9VNO_QN7lem_KJ_grHzSIMyWgHjYdK2oUds6k?ext=jpg" alt="Litter Leaks Logo">
   <h1>Litter Leaks</h1>
   <div class="content">
-    <div class="form-group">
-      <select id="image-type">
-        <option value="before">Before Cleanup</option>
-        <option value="after">After Cleanup</option>
-      </select>
+    <div class="type-buttons">
+      <button class="type-btn" data-type="before" onclick="selectType('before')">Before Cleanup</button>
+      <button class="type-btn" data-type="after" onclick="selectType('after')">After Cleanup</button>
     </div>
     <div class="form-group">
       <input type="text" id="location" placeholder="Add location (optional)">
@@ -367,8 +392,10 @@
     const statusEl = document.getElementById("status");
     const galleryEl = document.getElementById("gallery");
     const cameraBtn = document.getElementById("camera-btn");
-    const imageType = document.getElementById("image-type");
     const locationInput = document.getElementById("location");
+    const connectBtn = document.getElementById("connect-btn");
+    const disconnectBtn = document.getElementById("disconnect-btn");
+    const typeButtons = document.querySelectorAll(".type-btn");
 
     // Firebase config
     const firebaseConfig = {
@@ -395,6 +422,7 @@
     let walletProvider = null;
     let walletName = "Unknown";
     let currentSessionId = null;
+    let selectedType = null;
 
     async function connectWallet() {
       console.log("connectWallet called");
@@ -436,13 +464,11 @@
 
         statusEl.textContent = `Connected: ${publicKey.slice(0, 6)}...${publicKey.slice(-4)} with ${walletName}`;
         console.log("Wallet connected:", publicKey, "via", walletName);
+        connectBtn.style.display = "none";
+        disconnectBtn.style.display = "block";
 
         walletProvider.on("disconnect", () => {
-          publicKey = null;
-          walletProvider = null;
-          statusEl.textContent = "Wallet disconnected";
-          cameraBtn.disabled = true;
-          console.log("Wallet disconnected");
+          disconnectWallet();
         });
 
         await checkTokenOwnership();
@@ -451,6 +477,20 @@
         statusEl.textContent = `Wallet connection failed: ${error.message}`;
         console.error("Connection error:", error);
       }
+    }
+
+    function disconnectWallet() {
+      if (walletProvider && walletProvider.disconnect) {
+        walletProvider.disconnect();
+      }
+      publicKey = null;
+      walletProvider = null;
+      isTokenHolder = false;
+      statusEl.textContent = "Wallet disconnected";
+      cameraBtn.disabled = true;
+      connectBtn.style.display = "block";
+      disconnectBtn.style.display = "none";
+      console.log("Wallet disconnected manually");
     }
 
     async function checkTokenOwnership() {
@@ -477,7 +517,7 @@
         console.log("Total balance (raw):", totalBalance);
         isTokenHolder = totalBalance > 0;
         if (isTokenHolder) {
-          statusEl.textContent = "Token holder verified! Start the camera.";
+          statusEl.textContent = "Token holder verified! Select a photo type to start.";
           cameraBtn.disabled = false;
         } else {
           statusEl.textContent = "Connected, but only token (53hZ5w...) holders can post photos.";
@@ -490,11 +530,27 @@
       }
     }
 
+    function selectType(type) {
+      selectedType = type;
+      typeButtons.forEach(btn => {
+        btn.classList.toggle("selected", btn.dataset.type === type);
+      });
+      if (isTokenHolder) {
+        cameraBtn.disabled = false;
+        statusEl.textContent = `Selected: ${type === "before" ? "Before Cleanup" : "After Cleanup"} - Start the camera!`;
+      }
+    }
+
     async function handleCamera() {
       console.log("handleCamera called, isCameraActive:", isCameraActive);
       
       if (!isTokenHolder) {
         statusEl.textContent = "Only token (53hZ5w...) holders can use the camera.";
+        return;
+      }
+
+      if (!selectedType) {
+        statusEl.textContent = "Please select Before or After Cleanup first!";
         return;
       }
 
@@ -565,9 +621,8 @@
         cameraBtn.classList.remove("active");
         isCameraActive = false;
 
-        const imageTypeValue = imageType.value;
         const locationValue = locationInput.value.trim() || "No location provided";
-        await postPhoto(imageData, imageTypeValue, locationValue);
+        await postPhoto(imageData, selectedType, locationValue);
       }
     }
 
@@ -593,12 +648,12 @@
         statusEl.textContent = `Photo posted successfully! (${imageType} image)`;
 
         if (imageType === "before") {
-          statusEl.textContent += " Take the 'After' photo next.";
-          cameraBtn.disabled = true;
+          statusEl.textContent += " Select 'After' and take the next photo.";
+          selectType(null);
         } else if (imageType === "after") {
           currentSessionId = null;
-          cameraBtn.disabled = false;
           statusEl.textContent += " Cleanup sequence complete!";
+          selectType(null);
         }
 
         locationInput.value = "";
